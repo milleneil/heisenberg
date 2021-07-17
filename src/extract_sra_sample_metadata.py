@@ -8,7 +8,6 @@ eg. 'gender: ', 'sample group: '
 """
 
 import sys
-import gzip
 import argparse
 import matrix_utils
 
@@ -29,9 +28,10 @@ def parse_args():
     parser.add_argument('-t', '--transform', type=str, action='append',
                         help='transform Y to X in output [Y=X]')
         
-
     args = parser.parse_args()
+
     return args
+
 
 def main():
     args = parse_args()
@@ -48,23 +48,22 @@ def main():
     if args.output:
         out_file = open(args.output, 'w')
     
-    f = matrix_utils.open(args.file)
+    f = matrix_utils.open_file(args.file)
     for line in f:
-            if line.startswith('!Sample_geo_accession'):
-                fields = line.rstrip().replace('"','').split('\t')
-                samples = fields[1:]
-            else:
-                for meta in args.meta:
-                    meta_key = '"' + meta + ':'
-                    if line.startswith('!' + meta):
-                        fields = line.rstrip().replace('"','').split('\t')
-                        vals_map[meta] = fields[1:]
-                    elif line.startswith('!Sample_characteristics_ch') and meta_key in line:
-                        fields = line.rstrip().replace('"','').split('\t')
-                        vals_map[meta] = [i.replace(meta + ': ','') for i in fields[1:]]
+        if line.startswith('!Sample_geo_accession'):
+            fields = line.rstrip().replace('"','').split('\t')
+            samples = fields[1:]
+        else:
+            for meta in args.meta:
+                meta_key = '"' + meta + ':'
+                if line.startswith('!' + meta):
+                    fields = line.rstrip().replace('"','').split('\t')
+                    vals_map[meta] = fields[1:]
+                elif line.startswith('!Sample_characteristics_ch') and meta_key in line:
+                    fields = line.rstrip().replace('"', '').split('\t')
+                    vals_map[meta] = [i.replace(meta + ': ', '') for i in fields[1:]]
     f.close()
-                            
-    
+
     for i in range(0, len(samples)):
         sample = samples[i]
         vals = [sample]

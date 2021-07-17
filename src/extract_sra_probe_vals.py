@@ -7,7 +7,6 @@ methylation probes as rows
 """
 
 import sys
-import gzip
 import argparse
 import matrix_utils
 
@@ -34,7 +33,7 @@ def main():
     if args.output:
         output = matrix_utils.open_output_file(args.output)
     
-    f = matrix_utils.open(args.input)
+    f = matrix_utils.open_file(args.input)
     for line in f:
         # skip all lines until matrix table starts, then print remainder
         if line.startswith('!series_matrix_table_begin'):
@@ -43,7 +42,7 @@ def main():
             matrix_started = False
         elif matrix_started:
             # remove all double quotes around vals then print line
-            print(line.rstrip().replace('"',''), file=output)
+            print(line.rstrip().replace('"', ''), file=output)
     f.close()
     output.close()
 

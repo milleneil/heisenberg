@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 """ 
-combine list of methyl 'wide' files into one and nsure that all probe vals are 
+combine list of methyl 'wide' files into one and ensure that all probe vals are
 in the same column order for each sample
 """
 
@@ -45,7 +45,7 @@ def main():
             for line in f:
                 probes.append(line.rstrip())
     else:
-        f = matrix_utils.open(args.input[0])
+        f = matrix_utils.open_file(args.input[0])
         header = f.readline().rstrip().split('\t')
         probes = header[args.probe_start_idx:]
         f.close()
@@ -64,7 +64,7 @@ def main():
     
     for file in args.input: 
         print(f"reading {file}", file=sys.stderr)
-        f = matrix_utils.open(f)
+        f = matrix_utils.open_file(file)
         # read header and record col index for each probe name
         header = f.readline().rstrip().split('\t')
         header_map = {}

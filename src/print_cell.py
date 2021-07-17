@@ -26,7 +26,7 @@ def main():
     args = parse_args()
     
     # assume first line of file is headers and first column is labels
-    f = matrix_utils.open(args.input_file)
+    f = matrix_utils.open_file(args.input)
         
     col_idx = None
     for line in f:
