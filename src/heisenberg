@@ -1,0 +1,14 @@
+#! /bin/bash
+
+HOST=`hostname -s`
+if [[ "$HOST" != 'monolith' ]]; then
+    module load Python/3.6.4-foss-2018a
+fi
+
+if [[ -z $HEISENBERG_HOME ]]; then
+        source $HOME/env/work.env
+fi
+
+source $VENV_HOME/pml/bin/activate
+$HEISENBERG_HOME/src/heisenberg.py "$@"
+deactivate
