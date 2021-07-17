@@ -19,7 +19,7 @@ def parse_args():
     
     parser.add_argument('-s', '--samples', type=str, help='samples to extract')
 
-    parser.add_argument('-p', '--probes', type=str, help='probess to extract')
+    parser.add_argument('-p', '--probes', type=str, help='probes to extract')
     
     parser.add_argument('-x', '--probe_start_idx', type=int, default=4,
                         help='column index of first methyl probe in input [default=4]')
@@ -35,7 +35,7 @@ def parse_args():
 def load_file(file):
     """ load sample or probe list """
     vals = set()
-    with open(args.samples, 'r') as f:
+    with open(file, 'r') as f:
         for line in f:
             # skip header if found
             if line.startswith('Illumina'):
