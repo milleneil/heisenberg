@@ -41,7 +41,7 @@ def main():
                 raise Exception("col header not found: " + args.column)
         else:
             if fields[0] == args.row:
-                print(f"\t{args.columns}")
+                print(f"\t{args.column}")
                 print(f"{args.row}\t{fields[col_idx]}")
                 break
             
