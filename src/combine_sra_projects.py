@@ -43,7 +43,7 @@ def main():
     if args.probes:
         with open(args.probes, 'r') as f:
             for line in f:
-                probes.append(line.rstrip())
+                probes.append(line.rstrip().split('\t')[0])
     else:
         f = matrix_utils.open_file(args.input[0])
         header = f.readline().rstrip().split('\t')
