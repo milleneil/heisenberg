@@ -1,8 +1,9 @@
 #! /usr/bin/env python3
 
-import sys
 import numpy as np
+import pandas as pd
 import gzip
+
 
 def load_labels(input_file, tissue_idx=3, numeric=False, as_is=False):
     """ 
@@ -19,9 +20,9 @@ def load_labels(input_file, tissue_idx=3, numeric=False, as_is=False):
     y = []
     f = open_file(input_file)
     first = True
-    
+
     label_nums = get_labels_number_map()
-    
+
     for line in f:
         if first:
             first = False
@@ -33,11 +34,11 @@ def load_labels(input_file, tissue_idx=3, numeric=False, as_is=False):
             else:
                 y.append(label_nums['Tumor'])
         elif as_is:
-                y.append(fields[tissue_idx])
+            y.append(fields[tissue_idx])
         elif 'Normal' in fields[tissue_idx] or 'normal' in fields[tissue_idx]:
-                y.append('Normal')
+            y.append('Normal')
         else:
-                y.append('Tumor')
+            y.append('Tumor')
     f.close()
     return np.array(y)
 
@@ -48,17 +49,19 @@ def num_label_for(label):
     else:
         return 0
 
+
 def get_number_labels_map():
     """
     Get dictionary that defines our number -> label encoding for easy lookup 
     """
-    return { 0 : 'Tumor', 1 : 'Normal'}
+    return {0: 'Tumor', 1: 'Normal'}
+
 
 def get_labels_number_map():
     """
     Get dictionary that defines our label -> number encoding for easy lookup 
     """
-    return { 'Tumor' : 0, 'Normal' : 1 }
+    return {'Tumor': 0, 'Normal': 1}
 
 
 def load_numeric_labels(input_file, tissue_idx=3):
@@ -67,13 +70,12 @@ def load_numeric_labels(input_file, tissue_idx=3):
     as numbers. Convenience method wrapping load_labels
     """
     return load_labels(input_file, tissue_idx, numeric=True)
-        
-                
+
+
 def load_file_to_matrix(input_file, cols=None, probe_start=4):
     """ Load probe alpha values into matrix """
     # skip first three columns that have sample metadata and just keep
     # numeric vals
-    labels = None
     f = open_file(input_file)
     # peek at the first line of file to get probe labels
     # from header and figure out how many columns there are
@@ -82,24 +84,24 @@ def load_file_to_matrix(input_file, cols=None, probe_start=4):
 
     # if columns of interest not defined, read all columns beyond
     # sample/biospecimen/tissue info
-    if cols == None:    
+    if cols is None:
         num_cols = len(fields)
         labels = fields[probe_start:]
         f.seek(0)
         cols = range(probe_start, num_cols)
     else:
-        num_cols = len(cols)
         # extract out labels for probes we want
         labels = []
         for idx in cols:
             labels.append(fields[idx])
     f.close()
     matrix = np.genfromtxt(input_file,
-                delimiter='\t',
-                skip_header=1,
-                usecols=cols,
-                filling_values=0)
+                           delimiter='\t',
+                           skip_header=1,
+                           usecols=cols,
+                           filling_values=0)
     return matrix, labels
+
 
 def get_column_labels(input_file, cols=None, probe_start=3):
     # skip first three columns that have sample metadata and just keep
@@ -114,17 +116,16 @@ def get_column_labels(input_file, cols=None, probe_start=3):
 
     # if columns of interest not defined, read all columns beyond
     # sample/biospecimen/tissue info
-    if cols == None:    
+    if cols == None:
         labels = fields[probe_start:]
     else:
         # extract out labels for probes we want
         labels = []
         for idx in cols:
             labels.append(fields[idx])
-    
-    
+
     return labels
-    
+
 
 def open_file(input_file):
     """ convenience method to open regular and gzipped files """
@@ -134,6 +135,7 @@ def open_file(input_file):
         f = open(input_file, 'r')
 
     return f
+
 
 def open_output_file(input_file):
     """ convenience method to open regular and gzipped files """
@@ -145,35 +147,34 @@ def open_output_file(input_file):
     return f
 
 
-def get_header_from_file(in_file, has_metadata, required=None, start_idx=4, required_only=False):
-        """
+def get_header_from_file(in_file, has_metadata, required=None, start_idx=4,
+                         required_only=False):
+    """
         get header from input file and print to output file -  
         insert metadata and required cols if provided - probe labels will
         be printed in sorted order regardless of input order
         """
-        f = open_file(in_file)
-        line = f.readline()
-        f.close()
-        columns = line.rstrip().split('\t')
-        
-        # make header - include initial cols up to first probe no matter what
-        to_print = columns[:start_idx]
-        if has_metadata:
-            # add on metadata if provided
-            to_print.extend(['gender','age','age_group','tumor_stage'])
-            
-        # add on probe columns - sort here to make sure we line up with
-        # sorted vals in output samples
-        if required != None and required_only:
-            to_print.extend(sorted(required))
-        else:
-            probe_cols = set(columns[start_idx:])
-            if required != None:
-                probe_cols.update(required)
-            to_print.extend(sorted(probe_cols))
-        return '\t'.join(to_print)
+    f = open_file(in_file)
+    line = f.readline()
+    f.close()
+    columns = line.rstrip().split('\t')
 
+    # make header - include initial cols up to first probe no matter what
+    to_print = columns[:start_idx]
+    if has_metadata:
+        # add on metadata if provided
+        to_print.extend(['gender', 'age', 'age_group', 'tumor_stage'])
 
+    # add on probe columns - sort here to make sure we line up with
+    # sorted vals in output samples
+    if required != None and required_only:
+        to_print.extend(sorted(required))
+    else:
+        probe_cols = set(columns[start_idx:])
+        if required != None:
+            probe_cols.update(required)
+        to_print.extend(sorted(probe_cols))
+    return '\t'.join(to_print)
 
 
 def indexes_for_labels(input_file, labels):
@@ -187,7 +188,7 @@ def indexes_for_labels(input_file, labels):
     f.close()
 
     col_idxs = []
-    
+
     # keep track of found labels 
     found = set()
     for i in range(0, len(fields)):
@@ -198,9 +199,10 @@ def indexes_for_labels(input_file, labels):
     # complain loudly if any labels weren't found in file
     for label in labels:
         if label not in found:
-            raise Exception("label not in file: " + label)    
+            raise Exception("label not in file: " + label)
 
     return sorted(col_idxs)
+
 
 def load_probe_list(file):
     """ load list of probe names from file into list """
@@ -211,3 +213,4 @@ def load_probe_list(file):
         probes.add(fields[0])
     f.close()
     return probes
+
