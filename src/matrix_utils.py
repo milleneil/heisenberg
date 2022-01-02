@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import gzip
+import logging
 
 
 def load_labels(input_file, tissue_idx=3, numeric=False, as_is=False):
@@ -214,3 +215,24 @@ def load_probe_list(file):
     f.close()
     return probes
 
+def load_as_dataframe(input_files, probes=None):
+    """
+    Load one or more matrix files into pandas dataframe, optionally restricting
+    to list of probes
+    """
+    files = []
+
+    # make sure to include sample and tissue type in addition to probe names
+    if probes is not None:
+        probes.update(['sample', 'tissue'])
+    for f in input_files:
+        logging.info(f'loading input file {f}...')
+
+        df = pd.read_csv(f, sep='\t', usecols=probes)
+        files.append(df)
+        logging.info(f'loaded df {df.shape} from {f}...')
+
+    if probes is not None:
+        [probes.discard(f) for f in ['sample', 'tissue']]
+
+        return pd.concat(files)
